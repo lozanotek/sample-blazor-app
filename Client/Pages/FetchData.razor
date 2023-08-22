@@ -1,0 +1,52 @@
+﻿@page "/fetchdata"
+@using SampleApp.Shared
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject HttpClient Http
+@attribute [Authorize]
+
+<PageTitle>User Claims</PageTitle>
+
+<h1>Current User Claims</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (userClaims == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var userClaim in userClaims)
+            {
+                <tr>
+                    <td>@userClaim.Name</td>
+                    <td>@userClaim.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private ClaimInfo[]? userClaims;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            userClaims = await Http.GetFromJsonAsync<ClaimInfo[]>("Claims");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+}
